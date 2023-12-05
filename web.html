@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            cursor: pointer;
+            transition: filter 0.3s ease-in-out;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            background: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .overlay svg {
+            width: 50px;
+            height: 50px;
+            fill: white;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const videoContainer = document.getElementById('video-container');
+            let currentIndex = 1;
+            let isPaused = false;
+
+            // Пример URL'ов видео
+            const videoUrls = ['https://cdn2.gifsred.com/WearyCleverBaboon.mp4', 'https://cdn2.gifsred.com/SophisticatedEarnestFruitbat.mp4', 'https://cdn2.gifsred.com/ShockedMidnightblueComet.mp4', 'https://cdn2.gifsred.com/PlaintiveDismalJellyfish.mp4', 'https://cdn2.gifsred.com/IlliteratePrizeCony.mp4', 'https://cdn2.gifsred.com/DrearyAptHalibut.mp4', 'https://cdn2.gifsred.com/RosybrownDizzyLynx.mp4', 'https://cdn2.gifsred.com/AliveBriskAiredaleterrier.mp4', 'https://cdn2.gifsred.com/DrearyAuthorizedArabianhorse.mp4', 'https://cdn2.gifsred.com/FruitfulWellgroomedIrishterrier.mp4', 'https://cdn2.gifsred.com/ExhaustedKindlyUngulate.mp4', 'https://cdn2.gifsred.com/AchingGummySunfish.mp4', 'https://cdn2.gifsred.com/CarefulRequiredChihuahua.mp4', 'https://cdn2.gifsred.com/ObviousWaterloggedGnu.mp4', 'https://cdn2.gifsred.com/SeparateExcellentNettlefish.mp4', 'https://cdn2.gifsred.com/MundaneBlanchedalmondWhelp.mp4', 'https://cdn2.gifsred.com/ButterySeparateKentrosaurus.mp4', 'https://cdn2.gifsred.com/AttractiveShrillSandpiper.mp4', 'https://cdn2.gifsred.com/BrownFelineSnail.mp4', 'https://cdn2.gifsred.com/RemotePrettyEsok.mp4', 'https://cdn2.gifsred.com/WretchedPaleThylacine.mp4', 'https://cdn2.gifsred.com/PleasedBraveAracari.mp4', 'https://cdn2.gifsred.com/NimbleLankyAardwolf.mp4', 'https://cdn2.gifsred.com/SatisfiedLinedAmphiuma.mp4', 'https://cdn2.gifsred.com/NiftyRealisticGalapagospenguin.mp4', 'https://cdn2.gifsred.com/FrostyDetailedZenaida.mp4', 'https://cdn2.gifsred.com/ClumsyUnselfishFieldspaniel.mp4', 'https://cdn2.gifsred.com/StrongJitteryImperatorangel.mp4', 'https://cdn2.gifsred.com/WorrisomeDistinctToucan.mp4', 'https://cdn2.gifsred.com/StormySameVulpesvulpes.mp4', 'https://cdn2.gifsred.com/TastyFairGrub.mp4', 'https://cdn2.gifsred.com/UncomfortableRoyalAmbushbug.mp4', 'https://cdn2.gifsred.com/ImaginativeBlandRattail.mp4', 'https://cdn2.gifsred.com/NeighboringAdoredAnteater.mp4', 'https://cdn2.gifsred.com/ThoseClumsyIndiancow.mp4', 'https://cdn2.gifsred.com/SociableFrostyMonoclonius.mp4', 'https://cdn2.gifsred.com/DarkkhakiAgonizingIrishredandwhitesetter.mp4', 'https://cdn2.gifsred.com/EnragedWarmVaquita.mp4', 'https://cdn2.gifsred.com/FrigidCalculatingAsiaticlesserfreshwaterclam.mp4', 'https://cdn2.gifsred.com/NervousIllegalIberianlynx.mp4', 'https://cdn2.gifsred.com/PalegoldenrodUnderstatedUmbrette.mp4', 'https://cdn2.gifsred.com/SilentRemarkableOpossum.mp4', 'https://cdn2.gifsred.com/PowderblueStunningIcelandgull.mp4', 'https://cdn2.gifsred.com/OnlyEnlightenedOtter.mp4', 'https://cdn2.gifsred.com/GreedyRadiantLice.mp4', 'https://cdn2.gifsred.com/IdolizedCluelessBighornsheep.mp4', 'https://cdn2.gifsred.com/SnappySnivelingGopher.mp4', 'https://cdn2.gifsred.com/AccomplishedMediumforestgreenIvorybackedwoodswallow.mp4', 'https://cdn2.gifsred.com/ActualJudiciousGnu.mp4', 'https://cdn2.gifsred.com/BumpyTotalPrimate.mp4', 'https://cdn2.gifsred.com/FrayedLoathsomeLocust.mp4', 'https://cdn2.gifsred.com/ArcticCheerfulDorado.mp4', 'https://cdn2.gifsred.com/UsedCarefulBinturong.mp4', 'https://cdn2.gifsred.com/FrightenedRemoteCanadagoose.mp4', 'https://cdn2.gifsred.com/MediumturquoiseAnxiousWhelp.mp4', 'https://cdn2.gifsred.com/DarkWhirlwindAlleycat.mp4', 'https://cdn2.gifsred.com/JoyfulFavoriteSiberiantiger.mp4', 'https://cdn2.gifsred.com/AttractiveDarksalmonGoldenmantledgroundsquirrel.mp4', 'https://cdn2.gifsred.com/FairIllinformedAdeliepenguin.mp4', 'https://cdn2.gifsred.com/BuzzingSophisticatedAsp.mp4', 'https://cdn2.gifsred.com/AnimatedBossyTasmaniandevil.mp4', 'https://cdn2.gifsred.com/IndelibleImpracticalJunco.mp4', 'https://cdn2.gifsred.com/GiftedGorgeousKob.mp4', 'https://cdn2.gifsred.com/PopularBusyChicken.mp4', 'https://cdn2.gifsred.com/CompleteWarmheartedPronghorn.mp4', 'https://cdn2.gifsred.com/DryPerfectTayra.mp4', 'https://cdn2.gifsred.com/FlusteredDarkorangeGerenuk.mp4', 'https://cdn2.gifsred.com/ThirstyAccomplishedGoldfinch.mp4', 'https://cdn2.gifsred.com/RedMediumforestgreenDragonfly.mp4', 'https://cdn2.gifsred.com/MeagerLightsalmonIndianpalmsquirrel.mp4', 
+'https://cdn2.gifsred.com/SeagreenQuickwittedPipit.mp4', 'https://cdn2.gifsred.com/StingyCheapSeriema.mp4', 'https://cdn2.gifsred.com/ThirdIndolentInganue.mp4', 'https://cdn2.gifsred.com/DearestShockedGemsbuck.mp4', 'https://cdn2.gifsred.com/WoozyIncomparableMangabey.mp4', 'https://cdn2.gifsred.com/MediumspringgreenPuzzlingZethuswasp.mp4', 'https://cdn2.gifsred.com/DodgerblueStupidOwl.mp4', 'https://cdn2.gifsred.com/IrritatingSugaryConch.mp4', 'https://cdn2.gifsred.com/CarefreeTanRattail.mp4', 'https://cdn2.gifsred.com/UnnaturalInsignificantInexpectatumpleco.mp4', 'https://cdn2.gifsred.com/SlategraySlimIvorygull.mp4', 'https://cdn2.gifsred.com/OldlaceWideSwallow.mp4', 'https://cdn2.gifsred.com/BonyFoolishAmericanbobtail.mp4', 'https://cdn2.gifsred.com/BlaringLimeArizonaalligatorlizard.mp4', 'https://cdn2.gifsred.com/NewDotingPolyp.mp4', 'https://cdn2.gifsred.com/PowerlessJaggedRainbowtrout.mp4', 'https://cdn2.gifsred.com/CircularSilverWombat.mp4', 'https://cdn2.gifsred.com/BuzzingWorseStoat.mp4', 'https://cdn2.gifsred.com/CautiousStripedMajungatholus.mp4', 'https://cdn2.gifsred.com/WobblyMellowLionfish.mp4', 'https://cdn2.gifsred.com/SandySwelteringWalleye.mp4', 'https://cdn2.gifsred.com/StiffPaltryScallop.mp4', 'https://cdn2.gifsred.com/MemorableNewPseudodynerusquadrisectus.mp4', 'https://cdn2.gifsred.com/JuicyObedientChameleon.mp4', 'https://cdn2.gifsred.com/BisqueBlackandwhiteDuiker.mp4', 'https://cdn2.gifsred.com/WhoppingTurbulentStagbeetle.mp4', 'https://cdn2.gifsred.com/SuddenLumberingSilversidefish.mp4', 'https://cdn2.gifsred.com/WeeklyExcellentGuineafowl.mp4', 'https://cdn2.gifsred.com/GrownWhirlwindIberianbarbel.mp4', 'https://cdn2.gifsred.com/GrouchyIdealBarbet.mp4', 'https://cdn2.gifsred.com/PlumpSphericalChick.mp4', 'https://cdn2.gifsred.com/WobblyRunnyIsopod.mp4', 'https://cdn2.gifsred.com/RequiredNiftyDogwoodclubgall.mp4', 'https://cdn2.gifsred.com/FrighteningSurprisedHorse.mp4', 'https://cdn2.gifsred.com/HopefulPristineHuia.mp4', 'https://cdn2.gifsred.com/TurbulentCavernousSpittlebug.mp4', 'https://cdn2.gifsred.com/RectangularBackBadger.mp4', 'https://cdn2.gifsred.com/NeglectedAvariciousZanzibardaygecko.mp4', 'https://cdn2.gifsred.com/UnsteadyAdolescentBlackfly.mp4', 'https://cdn2.gifsred.com/AlertOilySugarglider.mp4', 'https://cdn2.gifsred.com/QuickwittedVoluminousNeedlefish.mp4', 'https://cdn2.gifsred.com/LoathsomeAshamedAdder.mp4', 'https://cdn2.gifsred.com/BonyKosherTragopan.mp4', 'https://cdn2.gifsred.com/WrithingNocturnalMarmoset.mp4', 'https://cdn2.gifsred.com/NeglectedSpectacularOryx.mp4', 'https://cdn2.gifsred.com/ScholarlyEnragedUrson.mp4', 'https://cdn2.gifsred.com/TrimTemptingTuna.mp4', 'https://cdn2.gifsred.com/SelfassuredShallowEthiopianwolf.mp4', 'https://cdn2.gifsred.com/AquaPaleAbalone.mp4', 'https://cdn2.gifsred.com/PaleturquoiseGreedyDutchshepherddog.mp4', 'https://cdn2.gifsred.com/QuickwittedMammothAfricanwilddog.mp4', 'https://cdn2.gifsred.com/UncommonMetallicWaterbuck.mp4', 'https://cdn2.gifsred.com/IdleCruelBovine.mp4', 'https://cdn2.gifsred.com/FirebrickCriminalCowbird.mp4', 'https://cdn2.gifsred.com/WheatDefinitiveBandicoot.mp4', 'https://cdn2.gifsred.com/TheseTameCockroach.mp4', 'https://cdn2.gifsred.com/BelovedCornsilkArcticseal.mp4', 'https://cdn2.gifsred.com/KnownVerifiableLouse.mp4', 'https://cdn2.gifsred.com/AbsoluteSweetNoctilio.mp4', 'https://cdn2.gifsred.com/ImmaterialDotingCommabutterfly.mp4', 'https://cdn2.gifsred.com/ParallelRealisticGelada.mp4', 'https://cdn2.gifsred.com/MistyroseDenseQuoll.mp4', 'https://cdn2.gifsred.com/MortifiedBubblyTomtit.mp4', 'https://cdn2.gifsred.com/UnusedAllHamadryad.mp4', 
+'https://cdn2.gifsred.com/PlasticSurprisedAmericanbittern.mp4', 'https://cdn2.gifsred.com/WindyRowdyLeafcutterant.mp4', 'https://cdn2.gifsred.com/NaturalKindheartedJenny.mp4', 'https://cdn2.gifsred.com/TartJadedGnu.mp4', 'https://cdn2.gifsred.com/OutrageousNervousYaffle.mp4', 'https://cdn2.gifsred.com/WellmadeGlumBuzzard.mp4', 'https://cdn2.gifsred.com/MotherlyUnequaledMosasaur.mp4', 'https://cdn2.gifsred.com/AngelicNavyblueGartersnake.mp4', 'https://cdn2.gifsred.com/LinearCloseKoalabear.mp4', 'https://cdn2.gifsred.com/AdvancedNearTragopan.mp4', 'https://cdn2.gifsred.com/TriflingCarelessCuttlefish.mp4', 'https://cdn2.gifsred.com/CrispObeseBats.mp4', 'https://cdn2.gifsred.com/NotableRipeBooby.mp4', 'https://cdn2.gifsred.com/WarySlowTench.mp4', 'https://cdn2.gifsred.com/MistyWellwornBlacklab.mp4', 'https://cdn2.gifsred.com/WhimsicalDownrightPinkriverdolphin.mp4', 'https://cdn2.gifsred.com/TubbyAncientHamadryas.mp4', 'https://cdn2.gifsred.com/QuintessentialClearFeline.mp4', 'https://cdn2.gifsred.com/FirebrickPracticalAmericanlobster.mp4', 'https://cdn2.gifsred.com/FirebrickRareCopperhead.mp4', 'https://cdn2.gifsred.com/ThatExemplaryHog.mp4', 'https://cdn2.gifsred.com/SeparateTraumaticAmphibian.mp4', 'https://cdn2.gifsred.com/SharpKhakiBedbug.mp4', 'https://cdn2.gifsred.com/WhitesmokeQuickArchaeocete.mp4', 'https://cdn2.gifsred.com/PastelFaroffPinkriverdolphin.mp4', 'https://cdn2.gifsred.com/VividMiserlyBear.mp4', 'https://cdn2.gifsred.com/VioletTrimAmericanbadger.mp4', 'https://cdn2.gifsred.com/FruitfulGoldenElver.mp4', 'https://cdn2.gifsred.com/LargeAssuredAoudad.mp4', 'https://cdn2.gifsred.com/CylindricalKookyAmbushbug.mp4', 'https://cdn2.gifsred.com/FloweryNoxiousJackrabbit.mp4', 'https://cdn2.gifsred.com/RealisticDearLonghorn.mp4', 'https://cdn2.gifsred.com/VirtualTastyNene.mp4', 'https://cdn2.gifsred.com/ThistleCyanMustang.mp4', 'https://cdn2.gifsred.com/JollyRewardingMicrovenator.mp4', 'https://cdn2.gifsred.com/RightTheseLemming.mp4', 'https://cdn2.gifsred.com/RedIntentAnglerfish.mp4', 'https://cdn2.gifsred.com/IdioticCumbersomeCottontail.mp4', 'https://cdn2.gifsred.com/TameCavernousSeahorse.mp4', 'https://cdn2.gifsred.com/LawfulGoldDrake.mp4', 'https://cdn2.gifsred.com/FluidSlimyTern.mp4', 'https://cdn2.gifsred.com/GrowlingUselessIntermediateegret.mp4', 'https://cdn2.gifsred.com/ForkedInstructiveIncatern.mp4', 'https://cdn2.gifsred.com/PristineMediocreSkimmer.mp4', 
+'https://cdn2.gifsred.com/UnwrittenImpureLeopardseal.mp4', 'https://cdn2.gifsred.com/LittleEarnestAtlanticspadefish.mp4', 'https://cdn2.gifsred.com/ShoddyUnselfishIbizanhound.mp4'];
+
+            function loadVideo(index) {
+                const video = document.createElement('video');
+                video.src = videoUrls[index];
+                video.autoplay = true;
+                video.loop = true;
+                video.className = 'video';
+                videoContainer.innerHTML = '';
+                videoContainer.appendChild(video);
+
+                const overlay = document.createElement('div');
+                overlay.className = 'overlay';
+                const pauseIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                pauseIcon.setAttribute("viewBox", "0 0 24 24");
+                pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
+                overlay.appendChild(pauseIcon);
+                videoContainer.appendChild(overlay);
+
+                video.addEventListener('click', function () {
+                    if (isPaused) {
+                        video.play();
+                        isPaused = false;
+                        overlay.style.opacity = 0;
+                    } else {
+                        video.pause();
+                        isPaused = true;
+                        overlay.style.opacity = 1;
+                    }
+                });
+            }
+
+            function swipeLeft() {
+                currentIndex = (currentIndex - 1 + videoUrls.length) % videoUrls.length;
+                loadVideo(currentIndex);
+            }
+
+            function swipeRight() {
+                currentIndex = (currentIndex + 1) % videoUrls.length;
+                loadVideo(currentIndex);
+            }
+
+            // Добавление обработчиков событий для свайпов
+            let touchStartX;
+
+            videoContainer.addEventListener('touchstart', function (e) {
+                touchStartX = e.touches[0].clientX;
+            });
+
+            videoContainer.addEventListener('touchend', function (e) {
+                const touchEndX = e.changedTouches[0].clientX;
+                const swipeDistance = touchEndX - touchStartX;
+
+                if (swipeDistance > 50) {
+                    swipeLeft();
+                } else if (swipeDistance < -50) {
+                    swipeRight();
+                }
+            });
+
+            // Начальная загрузка первого видео
+            loadVideo(currentIndex);
+        });
+    </script>
+    <title>TikTok-like Video Carousel</title>
+</head>
+<body>
+    <div id="video-container"></div>
+</body>
+</html>
